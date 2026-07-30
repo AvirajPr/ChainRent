@@ -1,0 +1,66 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  smart-contracts:
+    name: Build & Test Soroban Smart Contracts
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install Rust Toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+          targets: wasm32-unknown-unknown
+
+      - name: Cache Cargo Dependencies
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: contracts -> target
+
+      - name: Run rustfmt Check
+        run: cargo fmt --all -- --check
+        working-directory: contracts
+
+      - name: Run Cargo Clippy
+        run: cargo clippy --all-targets -- -D warnings
+        working-directory: contracts
+
+      - name: Run Cargo Unit Tests
+        run: cargo test
+        working-directory: contracts
+
+  frontend-app:
+    name: Lint, Typecheck, Test & Build Web App
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Run ESLint Checks
+        run: npx eslint .
+
+      - name: Run TypeScript Verification
+        run: npx tsc --noEmit
+
+      - name: Run Vitest Unit Tests
+        run: npm test
+
+      - name: Build Web Application
+        run: npm run build
