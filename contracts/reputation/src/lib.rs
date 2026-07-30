@@ -1,5 +1,5 @@
 #![no_std]
-use soroban_sdk::{contract, contractimpl, contracttype, Address, Env, Symbol, symbol_short};
+use soroban_sdk::{contract, contractimpl, contracttype, symbol_short, Address, Env, Symbol};
 
 #[contracttype]
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -43,7 +43,7 @@ impl ReputationContract {
     pub fn update_score(env: Env, wallet: Address, action: Symbol) -> ReputationInfo {
         // Only authorized invoker or contract itself can update the score
         // For simplicity, we authorize the wallet or contract calls
-        
+
         let key = DataKey::RepInfo(wallet.clone());
         let mut info = Self::get_score(env.clone(), wallet.clone());
 
@@ -77,8 +77,8 @@ impl ReputationContract {
 #[cfg(test)]
 mod test {
     use super::*;
-    use soroban_sdk::{Env, Address, Symbol};
     use soroban_sdk::testutils::Address as _;
+    use soroban_sdk::{Address, Env, Symbol};
 
     #[test]
     fn test_reputation_flow() {

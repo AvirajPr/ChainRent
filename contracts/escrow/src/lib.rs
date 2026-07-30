@@ -121,8 +121,8 @@ impl EscrowContract {
 #[cfg(test)]
 mod test {
     use super::*;
-    use soroban_sdk::{Env, Address, String};
     use soroban_sdk::testutils::Address as _;
+    use soroban_sdk::{Address, Env, String};
 
     #[test]
     fn test_escrow_flow() {
@@ -136,7 +136,9 @@ mod test {
         let landlord = Address::generate(&env);
 
         let token_admin = Address::generate(&env);
-        let token_id = env.register_stellar_asset_contract_v2(token_admin.clone()).address();
+        let token_id = env
+            .register_stellar_asset_contract_v2(token_admin.clone())
+            .address();
         let token_client = token::Client::new(&env, &token_id);
 
         let deposit_amount = 1000i128;
@@ -174,7 +176,9 @@ mod test {
         let landlord = Address::generate(&env);
 
         let token_admin = Address::generate(&env);
-        let token_id = env.register_stellar_asset_contract_v2(token_admin.clone()).address();
+        let token_id = env
+            .register_stellar_asset_contract_v2(token_admin.clone())
+            .address();
         let token_client = token::Client::new(&env, &token_id);
 
         let deposit_amount = 1000i128;

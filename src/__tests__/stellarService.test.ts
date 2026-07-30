@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { StellarService } from '../services/stellarService';
 
-global.fetch = vi.fn();
+vi.stubGlobal('fetch', vi.fn());
 
 describe('StellarService Balance Parser', () => {
   beforeEach(() => {

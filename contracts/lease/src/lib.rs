@@ -1,4 +1,5 @@
 #![no_std]
+#![allow(clippy::too_many_arguments)]
 use soroban_sdk::{
     contract, contractclient, contractimpl, contracttype, Address, Env, String, Symbol, Vec,
 };
@@ -101,10 +102,8 @@ impl LeaseContract {
         env.storage().persistent().set(&DataKey::LeaseList, &list);
 
         // Publish event
-        env.events().publish(
-            (Symbol::new(&env, "LeaseCreated"), lease_id),
-            rent_amount,
-        );
+        env.events()
+            .publish((Symbol::new(&env, "LeaseCreated"), lease_id), rent_amount);
 
         info
     }
@@ -122,7 +121,11 @@ impl LeaseContract {
             .get::<_, LeaseInfo>(&key)
             .unwrap();
 
-        assert_eq!(info.status, LeaseStatus::Created, "Lease must be in Created state");
+        assert_eq!(
+            info.status,
+            LeaseStatus::Created,
+            "Lease must be in Created state"
+        );
 
         // Lock deposit: Tenant must sign this call since lock_deposit requires tenant's auth
         info.tenant.require_auth();
@@ -164,10 +167,17 @@ impl LeaseContract {
             .get::<_, LeaseInfo>(&key)
             .unwrap();
 
-        assert_eq!(info.status, LeaseStatus::Active, "Lease must be in Active state");
+        assert_eq!(
+            info.status,
+            LeaseStatus::Active,
+            "Lease must be in Active state"
+        );
 
         // Verify terminator is landlord or tenant and has signed
-        assert!(terminator == info.landlord || terminator == info.tenant, "Only tenant or landlord can terminate");
+        assert!(
+            terminator == info.landlord || terminator == info.tenant,
+            "Only tenant or landlord can terminate"
+        );
         terminator.require_auth();
 
         // Refund/Release deposit based on payout recipient
@@ -211,10 +221,10 @@ impl LeaseContract {
 #[cfg(test)]
 mod test {
     use super::*;
-    use soroban_sdk::{Env, Address, String};
-    use soroban_sdk::testutils::Address as _;
-    use chainrent_reputation::ReputationContract;
     use chainrent_escrow::EscrowContract;
+    use chainrent_reputation::ReputationContract;
+    use soroban_sdk::testutils::Address as _;
+    use soroban_sdk::{Address, Env, String};
 
     #[test]
     fn test_lease_inter_contract_flow() {
@@ -224,19 +234,21 @@ mod test {
         let reputation_id = env.register(ReputationContract, ());
         let escrow_id = env.register(EscrowContract, ());
         let lease_id = env.register(LeaseContract, ());
-        
+
         let lease_client = LeaseContractClient::new(&env, &lease_id);
 
         let tenant = Address::generate(&env);
         let landlord = Address::generate(&env);
 
         let token_admin = Address::generate(&env);
-        let token_id = env.register_stellar_asset_contract_v2(token_admin.clone()).address();
+        let token_id = env
+            .register_stellar_asset_contract_v2(token_admin.clone())
+            .address();
         let token_client = soroban_sdk::token::Client::new(&env, &token_id);
 
         let deposit_amount = 1000i128;
         let rent_amount = 500i128;
-        
+
         let token_admin_client = soroban_sdk::token::StellarAssetClient::new(&env, &token_id);
         token_admin_client.mint(&tenant, &deposit_amount);
 
@@ -304,7 +316,9 @@ mod test {
         let intruder = Address::generate(&env);
 
         let token_admin = Address::generate(&env);
-        let token_id = env.register_stellar_asset_contract_v2(token_admin.clone()).address();
+        let token_id = env
+            .register_stellar_asset_contract_v2(token_admin.clone())
+            .address();
         let token_admin_client = soroban_sdk::token::StellarAssetClient::new(&env, &token_id);
         token_admin_client.mint(&tenant, &1000i128);
 
