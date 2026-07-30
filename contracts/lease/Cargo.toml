@@ -1,0 +1,15 @@
+[package]
+name = "chainrent-lease"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+soroban-sdk = "22.0.1"
+
+[dev-dependencies]
+soroban-sdk = { version = "22.0.1", features = ["testutils"] }
+chainrent-reputation = { path = "../reputation" }
+chainrent-escrow = { path = "../escrow" }
